@@ -1,0 +1,12 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore environment files
+.env
+
+# Ignore database files
+*.db
+
+# Ignore VS Code settings (optional, if you use workspace settings)
+.vscode/
