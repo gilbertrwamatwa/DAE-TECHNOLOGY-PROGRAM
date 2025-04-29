@@ -1,13 +1,14 @@
 import sqlite3
+import bcrypt
 
 def create_database():
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
 
-    # Drop table if already exists (safe cleanup)
+    # Drop table if already exists
     c.execute('DROP TABLE IF EXISTS users')
 
-    # Create new table
+    # Create new users table
     c.execute('''
         CREATE TABLE users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,12 +17,16 @@ def create_database():
         )
     ''')
 
-    # Insert a test user
-    c.execute('INSERT INTO users (username, password) VALUES (?, ?)', ('testuser', 'testpass'))
+    # ✅ Hash password before storing
+    plain_password = 'testpass'
+    hashed_password = bcrypt.hashpw(plain_password.encode('utf-8'), bcrypt.gensalt())
+
+    # ✅ Store hashed password
+    c.execute('INSERT INTO users (username, password) VALUES (?, ?)', ('testuser', hashed_password))
 
     conn.commit()
     conn.close()
-    print("Database created successfully.")
+    print("Database created with hashed password.")
 
 if __name__ == '__main__':
     create_database()
