@@ -17,12 +17,16 @@ def create_database():
         )
     ''')
 
-    # ✅ Hash password before storing
+    # ✅ Hash password before storing (for secure login demo)
     plain_password = 'testpass'
     hashed_password = bcrypt.hashpw(plain_password.encode('utf-8'), bcrypt.gensalt())
 
     # ✅ Store hashed password
     c.execute('INSERT INTO users (username, password) VALUES (?, ?)', ('testuser', hashed_password))
+
+    # ❌ Store plain-text password for INSECURE DEMO ONLY
+    c.execute('INSERT OR REPLACE INTO users (username, password) VALUES (?, ?)', ('insecure_user', 'insecure_pass'))
+
 
     conn.commit()
     conn.close()

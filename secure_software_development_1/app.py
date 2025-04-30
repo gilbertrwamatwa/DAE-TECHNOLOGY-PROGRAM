@@ -3,10 +3,9 @@ import sqlite3
 import re
 import bcrypt
 
-
 app = Flask(__name__)
 
-# ✅ Input validation: basic pattern check and length limit
+# ✅ Input validation: basic pattern check and length limit (SECURE route only)
 def is_valid_input(value):
     # Disallow SQL control characters, limit to 50 chars, no spaces or semicolons
     if len(value) > 50:
@@ -28,13 +27,14 @@ def login_insecure():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
+
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        #  ❌ INSECURE: Vulnerable to SQL injection
         query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
-        print(f"Executing Query: {query}")
-        
+        print(f"Executing Query: {query}")  # **Critical: Show the generated query**
+
         cursor.execute(query)
         user = cursor.fetchone()
         conn.close()
@@ -44,6 +44,7 @@ def login_insecure():
         else:
             error = 'Invalid credentials'
     return render_template('login_insecure.html', error=error)
+
 
 # ✅ Secure Login Route
 @app.route('/login_secure', methods=['GET', 'POST'])
@@ -60,7 +61,7 @@ def login_secure():
                 conn = get_db_connection()
                 cursor = conn.cursor()
 
-                # ✅ Only fetch hashed password for given username
+                # ✅ Secure:  Parameterized query and bcrypt
                 cursor.execute("SELECT * FROM users WHERE username=?", (username,))
                 user = cursor.fetchone()
                 conn.close()
@@ -79,4 +80,4 @@ def success():
     return render_template('success.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True
